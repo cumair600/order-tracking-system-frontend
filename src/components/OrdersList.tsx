@@ -17,6 +17,14 @@ export default function OrdersList() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    fetchOrders();
+
+    const intervalId = setInterval(fetchOrders, 65000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const fetchOrders = () => {
     setLoading(true);
     fetch("http://localhost:8080/order/get-all", {
       headers: { "Content-Type": "application/json" },
@@ -36,7 +44,7 @@ export default function OrdersList() {
         setLoading(false);
         console.error("Error fetching orders:", error);
       });
-  }, []);
+  };
 
   return (
     <Container style={{ marginTop: "20px" }}>
@@ -45,9 +53,10 @@ export default function OrdersList() {
           <Typography variant="h5" component="h2" gutterBottom>
             Orders List
           </Typography>
-          {!loading && orders.map((order, index) => (
-            <OrderItem key={index} order={order} />
-          ))}
+          {!loading &&
+            orders
+              .sort((a: any, b: any) => b.orderId - a.orderId)
+              .map((order, index) => <OrderItem key={index} order={order} />)}
         </CardContent>
       </Card>
     </Container>

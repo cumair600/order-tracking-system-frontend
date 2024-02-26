@@ -10,6 +10,8 @@ import {
 import TextField from "@material-ui/core/TextField";
 import { useState } from "react";
 import CONSTANTS from "../Constants/constants";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CreateOrder() {
   const [customerId, setCustomerId] = useState("");
@@ -22,14 +24,25 @@ export default function CreateOrder() {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    const order = {customerId: parseInt(customerId), orderType, orderContent, orderStatus: "NEW", orderProgress: 0};
+    const order = {fkCustomerId: parseInt(customerId), orderType, orderContent, orderStatus: "NEW", orderProgress: 0};
     fetch("http://localhost:8080/order/add", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(order)
-    }).then(() => {
-        console.log("New Order Created!")
     })
+    .then(response => {
+      if (response.ok) {
+          toast.success("New Order Created!");
+          setCustomerId("");
+          setOrderType("");
+          setOrderContent("");
+      } else {
+          toast.error("Failed to create order");
+      }
+  })
+  .catch(error => {
+      toast.error("An error occurred while creating the order");
+  });
   }
 
   return (
@@ -90,6 +103,7 @@ export default function CreateOrder() {
           </form>
         </CardContent>
       </Card>
+      <ToastContainer position="bottom-center" />
     </Container>
   );
 }
